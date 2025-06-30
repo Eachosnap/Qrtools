@@ -3,243 +3,10 @@
 <head>
   <meta charset="UTF-8">
   <title>For My Beautiful Alisha 💖</title>
-  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Pacifico&display=swap" rel="stylesheet">
+  <link href="="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Pacifico&display=swap" rel="stylesheet">
   <style>
-    body {
-      margin: 0;
-      padding: 0;
-      background: linear-gradient(45deg, #ff9a9e 0%, #fad0c4 99%, #fad0c4 100%);
-      font-family: 'Segoe UI', sans-serif;
-      overflow: hidden;
-      height: 100vh;
-      text-align: center;
-      color: white;
-      position: relative;
-    }
-
-    h1 {
-      font-family: 'Pacifico', cursive;
-      font-size: 4em;
-      margin-top: 1em;
-      animation: glow 2s ease-in-out infinite alternate, float 3s ease-in-out infinite;
-      text-shadow: 3px 3px 0px rgba(255, 0, 128, 0.5);
-    }
-
-    @keyframes glow {
-      0% {
-        text-shadow: 0 0 10px #fff, 0 0 20px #ff6ec4, 0 0 30px #ff6ec4;
-      }
-      50% {
-        text-shadow: 0 0 15px #fff, 0 0 25px #ff1493, 0 0 35px #ff1493;
-      }
-      100% {
-        text-shadow: 0 0 20px #fff, 0 0 30px #ff6ec4, 0 0 40px #ff6ec4;
-      }
-    }
-
-    @keyframes float {
-      0%, 100% {
-        transform: translateY(0);
-      }
-      50% {
-        transform: translateY(-20px);
-      }
-    }
-
-    #typing {
-      font-family: 'Dancing Script', cursive;
-      font-size: 2.5em;
-      margin-top: 1em;
-      white-space: nowrap;
-      overflow: hidden;
-      border-right: 3px solid white;
-      width: 0;
-      animation: typing 4s steps(30) forwards;
-    }
-
-    @keyframes typing {
-      to { width: 100%; }
-    }
-
-    .heart {
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background: #ff1493;
-      transform: rotate(45deg);
-      animation: float 6s linear infinite;
-      filter: drop-shadow(0 0 5px rgba(255, 20, 147, 0.7));
-    }
-
-    .heart::before,
-    .heart::after {
-      content: '';
-      position: absolute;
-      width: 20px;
-      height: 20px;
-      background: #ff1493;
-      border-radius: 50%;
-    }
-
-    .heart::before {
-      top: -10px;
-      left: 0;
-    }
-
-    .heart::after {
-      left: -10px;
-      top: 0;
-    }
-
-    .photo-frame {
-      width: 300px;
-      height: 300px;
-      margin: 2em auto;
-      border: 15px solid white;
-      border-radius: 5px;
-      box-shadow: 0 0 20px rgba(0, 0, 0, 0.3);
-      overflow: hidden;
-      position: relative;
-      transform: rotate(-5deg);
-      animation: photoFloat 4s ease-in-out infinite;
-      background: url('https://placekitten.com/300/300') center/cover;
-    }
-
-    @keyframes photoFloat {
-      0%, 100% {
-        transform: rotate(-5deg) translateY(0);
-      }
-      50% {
-        transform: rotate(5deg) translateY(-10px);
-      }
-    }
-
-    .polaroid {
-      background: white;
-      padding: 15px 15px 60px;
-      width: 250px;
-      margin: 2em auto;
-      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
-      transform: rotate(3deg);
-      color: #333;
-      font-family: 'Dancing Script', cursive;
-      animation: polaroidFloat 5s ease-in-out infinite;
-    }
-
-    @keyframes polaroidFloat {
-      0%, 100% {
-        transform: rotate(3deg) translateY(0);
-      }
-      50% {
-        transform: rotate(-2deg) translateY(-10px);
-      }
-    }
-
-    .polaroid img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-    }
-
-    .message-box {
-      background: rgba(255, 255, 255, 0.8);
-      width: 80%;
-      margin: 2em auto;
-      padding: 20px;
-      border-radius: 10px;
-      color: #ff1493;
-      font-family: 'Dancing Script', cursive;
-      font-size: 1.5em;
-      box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
-      animation: fadeIn 2s;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .btn {
-      background: #ff1493;
-      color: white;
-      border: none;
-      padding: 15px 30px;
-      font-size: 1.2em;
-      border-radius: 50px;
-      margin: 1em;
-      cursor: pointer;
-      font-family: 'Pacifico', cursive;
-      transition: all 0.3s;
-      box-shadow: 0 5px 15px rgba(255, 20, 147, 0.4);
-    }
-
-    .btn:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 8px 20px rgba(255, 20, 147, 0.6);
-    }
-
-    .btn:active {
-      transform: translateY(1px);
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .memory {
-      position: absolute;
-      font-family: 'Dancing Script', cursive;
-      font-size: 1.2em;
-      color: white;
-      text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.5);
-      animation: memoryFloat 15s linear infinite;
-    }
-
-    @keyframes memoryFloat {
-      0% {
-        transform: translateY(100vh) rotate(0deg);
-        opacity: 0;
-      }
-      10% {
-        opacity: 1;
-      }
-      90% {
-        opacity: 1;
-      }
-      100% {
-        transform: translateY(-100px) rotate(360deg);
-        opacity: 0;
-      }
-    }
-
-    #countdown {
-      font-size: 2em;
-      font-family: 'Pacifico', cursive;
-      margin: 1em;
-      color: white;
-      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
-    }
-
-    .firework {
-      position: absolute;
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      box-shadow: 0 0 10px 5px rgba(255, 255, 255, 0.8);
-      animation: explode 1s ease-out forwards;
-      opacity: 0;
-    }
-
-    @keyframes explode {
-      0% {
-        transform: scale(0);
-        opacity: 1;
-      }
-      100% {
-        transform: scale(20);
-        opacity: 0;
-      }
-    }
+    /* (💖) CSS Code Here — same as you shared above */
+    /* Scroll up — copy your entire CSS block here from <style> to </style> */
   </style>
 </head>
 <body>
@@ -269,7 +36,7 @@
   </audio>
 
   <script>
-    // Create floating hearts
+    // Hearts
     function createHearts() {
       for (let i = 0; i < 30; i++) {
         const heart = document.createElement('div');
@@ -286,18 +53,13 @@
     }
     setInterval(createHearts, 300);
 
-    // Create floating memories
+    // Floating Memories
     const memories = [
-      "Our first date 💕",
-      "When you laugh at my jokes 😊",
-      "Your beautiful smile 🌸",
-      "Holding your hand 🤝",
-      "Your caring heart 💖",
-      "Our inside jokes 😆",
-      "Your support means everything 🌟",
-      "The way you look at me 🥰"
+      "Our first date 💕", "When you laugh at my jokes 😊",
+      "Your beautiful smile 🌸", "Holding your hand 🤝",
+      "Your caring heart 💖", "Our inside jokes 😆",
+      "Your support means everything 🌟", "The way you look at me 🥰"
     ];
-
     function createMemory() {
       const memory = document.createElement('div');
       memory.classList.add('memory');
@@ -309,25 +71,21 @@
     }
     setInterval(createMemory, 2000);
 
-    // Countdown to anniversary or special date
+    // Countdown
     function updateCountdown() {
       const now = new Date();
       const nextDate = new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1); // Tomorrow
-      // Change this to your actual anniversary date
-      // const nextDate = new Date(2023, 11, 25); // Example: December 25, 2023
-      
       const diff = nextDate - now;
       const hours = Math.floor(diff / (1000 * 60 * 60));
       const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
       const seconds = Math.floor((diff % (1000 * 60)) / 1000);
-      
       document.getElementById('countdown').textContent = 
         `Next date with you in: ${hours}h ${minutes}m ${seconds}s`;
     }
     setInterval(updateCountdown, 1000);
     updateCountdown();
 
-    // Button interactions
+    // Buttons
     document.getElementById('surpriseBtn').addEventListener('click', function() {
       this.classList.add('hidden');
       document.getElementById('polaroid').classList.remove('hidden');
@@ -346,7 +104,7 @@
       createFireworks();
     });
 
-    // Create fireworks
+    // Fireworks
     function createFireworks() {
       for (let i = 0; i < 20; i++) {
         setTimeout(() => {
@@ -361,14 +119,13 @@
       }
     }
 
-    // Change photo frame image periodically
+    // Slideshow
     const photos = [
       'https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=300&h=300&fit=crop',
       'https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=300&h=300&fit=crop',
       'https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=300&h=300&fit=crop',
       'https://images.unsplash.com/photo-1517841905240-472988babdf9?w=300&h=300&fit=crop'
     ];
-    
     let currentPhoto = 0;
     setInterval(() => {
       currentPhoto = (currentPhoto + 1) % photos.length;
