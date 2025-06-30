@@ -140,6 +140,7 @@
       background-size: cover;
       background-position: center;
       transition: transform 0.3s;
+      background-image: url('https://drive.google.com/uc?export=view&id=1i4Igixs9qRw33DzyOMaiW5Iof-fXbORT');
     }
 
     .photo-frame:hover {
@@ -389,8 +390,8 @@
     
     <div class="memory-gallery">
       <div class="memory-item" onclick="createFireworks()">
-        <img src="https://images.unsplash.com/photo-1524504388940-b1c1722653e1?w=200&h=200&fit=crop" alt="Memory 1">
-        <p>Our first date</p>
+        <img src="https://drive.google.com/uc?export=view&id=1i4Igixs9qRw33DzyOMaiW5Iof-fXbORT" alt="Our special moment">
+        <p>Our beautiful memory</p>
       </div>
       <div class="memory-item" onclick="createFireworks()">
         <img src="https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=200&h=200&fit=crop" alt="Memory 2">
@@ -534,17 +535,6 @@
       i++;
       if (i > text.length) clearInterval(typing);
     }, 100);
-    
-    // Change photo frame image periodically
-    const photos = [
-      'https://drive.google.com/file/d/1i4Igixs9qRw33DzyOMaiW5Iof-fXbORT/view?usp=drivesdk'
-    ];
-    
-    let currentPhoto = 0;
-    setInterval(() => {
-      currentPhoto = (currentPhoto + 1) % photos.length;
-      document.getElementById('photoFrame').style.backgroundImage = `url('${photos[currentPhoto]}')`;
-    }, 3000);
 
     // Surprise box interaction
     document.getElementById('boxTop').addEventListener('click', function() {
