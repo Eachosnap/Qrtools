@@ -297,7 +297,7 @@
     <div class="card">
       <h2><i class="fas fa-qrcode"></i> QR Code Scanner</h2>
       <div id="scanner-status" class="status-message info">
-        Initializing camera, please wait...
+        Camera permissions needed to scan QR codes
       </div>
       <div class="video-container" style="width: 100%; display: flex; justify-content: center;">
         <video id="qr-video" width="300" height="300" style="border-radius: 12px;"></video>
@@ -462,7 +462,7 @@
       });
     }
 
-    // QR Scanner
+    // QR Scanner - Fixed version
     function initScanner() {
       const videoElement = document.getElementById('qr-video');
       const qrResult = document.getElementById('qr-result');
@@ -472,6 +472,8 @@
       const scannerStatus = document.getElementById('scanner-status');
       const scanProgress = document.getElementById('scan-progress');
       
+      let isScanning = false;
+
       // Reset UI
       qrResult.textContent = 'None';
       scannerStatus.className = 'status-message info';
@@ -484,11 +486,14 @@
       copyResultBtn.addEventListener('click', copyScanResult);
       
       async function startScanner() {
+        if (isScanning) return;
+        
         scannerStatus.className = 'status-message info';
         scannerStatus.textContent = 'Initializing camera...';
         scanProgress.style.width = '20%';
         
         try {
+          // Create new scanner instance
           qrScanner = new Html5Qrcode('qr-video');
           const cameras = await Html5Qrcode.getCameras();
           
@@ -497,53 +502,75 @@
             scannerStatus.textContent = 'Scanning...';
             scanProgress.style.width = '50%';
             
-            await qrScanner.start(
-              cameraId,
-              {
-                fps: 10,
-                qrbox: 250,
-                aspectRatio: 1.0
-              },
-              qrCodeMessage => {
-                // Success callback
-                qrResult.textContent = qrCodeMessage;
-                scannerStatus.className = 'status-message success';
-                scannerStatus.textContent = 'QR code detected!';
-                scanProgress.style.width = '100%';
-                
-                // Vibrate if available
-                if ('vibrate' in navigator) {
-                  navigator.vibrate(200);
+            try {
+              await qrScanner.start(
+                cameraId,
+                {
+                  fps: 10,
+                  qrbox: { width: 250, height: 250 },
+                  aspectRatio: 1.0
+                },
+                qrCodeMessage => {
+                  // Success callback
+                  isScanning = false;
+                  qrResult.textContent = qrCodeMessage;
+                  scannerStatus.className = 'status-message success';
+                  scannerStatus.textContent = 'QR code detected!';
+                  scanProgress.style.width = '100%';
+                  
+                  // Vibrate if available
+                  if ('vibrate' in navigator) {
+                    navigator.vibrate(200);
+                  }
+                  
+                  // Auto-stop after successful scan
+                  setTimeout(stopScanner, 2000);
+                },
+                errorMessage => {
+                  // Error callback - ignore "No QR code found" messages
+                  if (!errorMessage.includes('No QR code found')) {
+                    scannerStatus.className = 'status-message error';
+                    scannerStatus.textContent = errorMessage;
+                    scanProgress.style.width = '0%';
+                    console.error('Scan error:', errorMessage);
+                  }
                 }
-                
-                // Auto-stop after successful scan (optional)
-                // setTimeout(stopScanner, 2000);
-              },
-              errorMessage => {
-                // Error callback
-                scannerStatus.className = 'status-message error';
-                scannerStatus.textContent = errorMessage;
-                scanProgress.style.width = '0%';
-              }
-            );
-            
-            scanProgress.style.width = '80%';
-            scannerStatus.className = 'status-message success';
-            scannerStatus.textContent = 'Scanner ready - point at a QR code';
+              );
+              
+              isScanning = true;
+              scanProgress.style.width = '80%';
+              scannerStatus.className = 'status-message success';
+              scannerStatus.textContent = 'Scanner ready - point at a QR code';
+            } catch (startError) {
+              isScanning = false;
+              scannerStatus.className = 'status-message error';
+              scannerStatus.textContent = `Failed to start camera: ${startError.message}`;
+              scanProgress.style.width = '0%';
+              console.error('Camera start error:', startError);
+            }
           } else {
-            throw new Error('No cameras found');
+            throw new Error('No cameras found. Please check your device permissions.');
           }
         } catch (error) {
+          isScanning = false;
           scannerStatus.className = 'status-message error';
           scannerStatus.textContent = `Error: ${error.message}`;
           scanProgress.style.width = '0%';
           console.error('QR Scanner error:', error);
+          
+          // Provide user guidance
+          if (error.message.includes('permission')) {
+            scannerStatus.textContent += '. Please allow camera access and refresh the page.';
+          } else if (error.message.includes('No cameras found')) {
+            scannerStatus.textContent += '. This device may not have a camera.';
+          }
         }
       }
       
       function stopScanner() {
-        if (qrScanner) {
+        if (qrScanner && isScanning) {
           qrScanner.stop().then(() => {
+            isScanning = false;
             scannerStatus.className = 'status-message info';
             scannerStatus.textContent = 'Scanner stopped';
             scanProgress.style.width = '0%';
@@ -915,6 +942,5 @@
       }
     }
   </script>
-
 </body>
 </html>
