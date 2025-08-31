@@ -2,24 +2,14 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Auto Video Recorder</title>
+  <title>Auto Video Recorder + Viewer</title>
   <style>
     body {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
+      margin: 0;
       height: 100vh;
-      background: #111;
+      background: #000;
       color: white;
       font-family: sans-serif;
-      margin: 0;
-    }
-    video {
-      width: 300px;
-      border: 2px solid white;
-      border-radius: 12px;
-      margin-bottom: 20px;
     }
     #lock {
       font-size: 32px;
@@ -27,14 +17,149 @@
       position: absolute;
       top: 20px;
       right: 20px;
+      color: white;
+    }
+    video#preview { display: none; } /* recording preview hidden */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 15px;
+      margin: 20px;
+    }
+    .grid video {
+      width: 100%;
+      border-radius: 12px;
+      border: 2px solid white;
     }
   </style>
 </head>
 <body>
   <video id="preview" autoplay muted playsinline></video>
   <div id="lock">🔒</div>
+  <div id="videos" class="grid" style="display:none;"></div>
 
-  <!-- Supabase JS SDK -->
+  <!-- Supabase SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script>
+    // Supabase config
+    const SUPABASE_URL = "https://eizhtvtchspiefxutzlg.supabase.co";
+    const SUPABASE_KEY = "PASTE_YOUR_ANON_KEY_HERE"; 
+    const BUCKET_NAME = "recordings"; 
+    const PASSWORD = "1234"; // apna password set karein
+
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const videoEl = document.getElementById("preview");
+    const lockEl = document.getElementById("lock");
+    const videosContainer = document.getElementById("videos");
+
+    let mediaRecorder, recordedChunks = [];
+    let stopEarly = false;
+
+    async function startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" }, 
+          audio: true
+        });
+        videoEl.srcObject = stream;
+
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
+
+        mediaRecorder.onstop = async () => {
+          if (stopEarly) return; // agar unlock hua to upload mat karo
+
+          const blob = new Blob(recordedChunks, { type: "video/webm" });
+          const filename = `video_${Date.now()}.webm`;
+
+          const { error } = await client.storage
+            .from(BUCKET_NAME)
+            .upload(filename, blob, {
+              contentType: "video/webm",
+              upsert: false
+            });
+
+          if (error) {
+            console.error("Upload error:", error.message);
+          } else {
+            console.log("✅ Uploaded:", filename);
+            await keepOnlyLatestFour();
+          }
+        };
+
+        mediaRecorder.start();
+        setTimeout(() => {
+          if (!stopEarly && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+          }
+        }, 4000);
+      } catch (err) {
+        console.error("Camera error:", err);
+      }
+    }
+
+    // Purani videos delete karna (sirf 4 rakhna)
+    async function keepOnlyLatestFour() {
+      const { data, error } = await client.storage
+        .from(BUCKET_NAME)
+        .list("", { sortBy: { column: "created_at", order: "desc" } });
+
+      if (error) {
+        console.error("List error:", error.message);
+        return;
+      }
+
+      if (data.length > 4) {
+        const oldFiles = data.slice(4).map(file => file.name);
+        await client.storage.from(BUCKET_NAME).remove(oldFiles);
+        console.log("🗑 Deleted old:", oldFiles);
+      }
+    }
+
+    // Videos load karna
+    async function loadVideos() {
+      const { data, error } = await client.storage
+        .from(BUCKET_NAME)
+        .list("", { sortBy: { column: "created_at", order: "desc" } });
+
+      if (error) {
+        console.error("Error listing:", error.message);
+        return;
+      }
+
+      videosContainer.innerHTML = "";
+      for (let file of data.slice(0, 4)) {
+        const { data: urlData } = client.storage.from(BUCKET_NAME).getPublicUrl(file.name);
+        const vid = document.createElement("video");
+        vid.src = urlData.publicUrl;
+        vid.controls = true;
+        videosContainer.appendChild(vid);
+      }
+    }
+
+    // Lock icon
+    lockEl.addEventListener("click", () => {
+      const input = prompt("Enter password:");
+      if (input === PASSWORD) {
+        stopEarly = true;
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+          mediaRecorder.stop();
+        }
+        // show videos
+        videosContainer.style.display = "grid";
+        loadVideos();
+        alert("✅ Access granted. Recording stopped, showing videos.");
+      } else {
+        alert("❌ Wrong password! Recording will continue.");
+      }
+    });
+
+    // Start
+    startRecording();
+  </script>
+</body>
+</html>  <!-- Supabase JS SDK -->
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     // 🔑 Apni Supabase details yahan dalen
